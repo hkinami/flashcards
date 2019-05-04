@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <style>
+        #container {
+            position: relative;
+            width: 100%;
+        }
+
+        .card  {
+            position: absolute;
+            top: 0px;
+            left: 20%;
+            border: 1px solid #aaa;
+            border-radius: 30px;
+            width: 60%;
+            height: 300px;
+            padding-top: 50px;
+            text-align: center;
+            font-size: 64px;
+            font-weight: 200%;
+            backface-visibility: hidden;
+        }
+
+        .long {
+            font-size: 16px;
+            font-weight: 120%;
+        }
+
+        #previous {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: 10%;
+            height: 300px;
+            padding-top: 45%;
+        }
+
+        #next {
+            position: absolute;
+            top: 0px;
+            left: 90%;
+            width: 10%;
+            height: 300px;
+            padding-top: 45%;
+        }
+
+
+        .front {
+            transform-style: preserve-3d;
+            transform: rotateX(0deg);
+            opacity: 1;
+            transition-property: transform, opacity;
+            transition-duration: 2s, 2s;
+        }
+
+        .back {
+            transform-style: preserve-3d;
+            transform: rotateX(180deg);
+            opacity: 0;
+            transition-property: transform, opacity;
+            transition-duration: 2s, 2s;
+        }
+
+        #english {
+            color: red;
+        }
+
+        #japanese {
+            color: green;
+        }
+
+        .audio_block {
+            position: absolute;
+            top: 360px;
+            left: 20%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <div id="previous">◀︎</div>
+        <div class="card front" id="english">Study</div>
+        <div class="card back" id="japanese">学ぶ</div>
+        <div class="audio_block"><audio id="audio" src='/speech?text=Study' type='audio/mpeg' controls autoplay></audio></div>
+        <div id="next">▶︎</div>
+    </div>
+
+</body>
+<script>
+
+    const words = [
+        { english:"Study", japanese:"勉強する"},
+        { english:"I study English every day.", japanese:"いつも英語の勉強をしているよ"},
+        { english:"I studied English yesterday.", japanese:"昨日英語の勉強をしたよ"},
+        { english:"I am going to study English tomorrow.", japanese:"明日英語の勉強をするよ"},
+        { english:"Do you study English every day?", japanese:"いつも英語の勉強をしてるの?"},
+        { english:"Did you study English yesterday?", japanese:"昨日英語の勉強をしたの？"},
+        { english:"Are you going to study English tomorrow?", japanese:"明日英語の勉強をするの?"},
+
+    ]
+    let index = 0
+
+    function getNextWord(english, japanese) {
+        index += 1
+        if (words.length <= index) {
+            index = 0
+        }
+        return words[index]
+    }
+
+    function getPreviousWord(english, japanese) {
+        index -= 1
+        if (index < 0) {
+            index = words.length - 1
+        }
+        return words[index]
+    }
+
+    function setNewWord(english, japanese, audio, word) {
+        setText(english, word.english)
+        setText(japanese, word.japanese)
+        audio.setAttribute('src', "http://localhost:8080/speech?text=" + encodeURI(word.english))
+    }
+
+    function setText(elem, text) {
+        elem.innerText = text
+        if (text.length > 10) {
+            elem.classList.add('long')
+        } else {
+            elem.classList.remove('long')
+        }
+    }
+
+    function flip(elem) {
+        if (elem.classList.contains('front')) {
+            elem.classList.replace('front', 'back')
+        } else if (elem.classList.contains('back')) {
+            elem.classList.replace('back', 'front')
+        }
+    }
+
+    window.onload = function() {
+        let english = document.getElementById('english')
+        let japanese = document.getElementById('japanese')
+        let audio = document.getElementById('audio')
+
+        english.addEventListener('click', function() {
+            flip(english)
+            flip(japanese)
+        })
+        japanese.addEventListener('click', function() {
+            flip(english)
+            flip(japanese)
+        })
+
+        let next = document.getElementById('next')
+        let previous = document.getElementById('previous')
+
+        next.addEventListener('click', function() {
+            const word = getNextWord()
+            setNewWord(english, japanese, audio, word)
+        })
+
+        previous.addEventListener('click', function() {
+            const word = getPreviousWord()
+            setNewWord(english, japanese, audio, word)
+        })
+    }
+
+</script>
+
+</html>

@@ -1,0 +1,13 @@
+#!/bin/bash
+text=$(echo $QUERY_STRING | cut -f1 -d '&' | cut -f2 -d '=')
+file=/usr/share/nginx/html/wav/$text.wav
+mp3file=/usr/share/nginx/html/wav/$text.mp3
+
+word=$(echo $text | nkf --url-input)
+if [ ! -f $mp3file ]; then
+    flite -voice slt -t "$word" -o $file
+    lame -V2 $file $mp3file
+    rm $file
+fi
+echo -n -e "Content-Type: audio/mpeg\n\n"
+cat $mp3file
