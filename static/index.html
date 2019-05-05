@@ -123,7 +123,7 @@
     function setNewWord(english, japanese, audio, word) {
         setText(english, word.english)
         setText(japanese, word.japanese)
-        audio.setAttribute('src', "http://localhost:8080/speech?text=" + encodeURI(word.english))
+        audio.setAttribute('src', "/speech?text=" + encodeURI(word.english))
     }
 
     function setText(elem, text) {
